@@ -1,0 +1,8 @@
+Flask
+Flask-PyMongo
+python-dotenv
+pymongo
+marshmallow>=3.19.0
+flask-jwt-extended
+bcrypt
+flask-cors
