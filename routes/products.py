@@ -135,3 +135,9 @@ def get_products_by_category(category_id):
         return jsonify(products), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500 
+    
+@products_bp.route('/products/ids', methods=['GET'])
+def get_all_products_ids():
+    products = products_collection.find({}, {'_id': 1})
+    product_ids = [str(product['_id']) for product in products]
+    return jsonify(product_ids)
