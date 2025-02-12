@@ -93,3 +93,9 @@ def filter_categories():
         'pages': pages,
         'total': total
     }) 
+
+@categories_bp.route('/categories/ids', methods=['GET'])
+def get_all_categories_ids():
+    categories = categories_collection.find({}, {'_id': 1})
+    category_ids = [str(category['_id']) for category in categories]
+    return jsonify(category_ids)
