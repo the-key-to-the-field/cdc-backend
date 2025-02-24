@@ -10,15 +10,16 @@ from db.mongo_client import get_db
 from waitress import serve
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, resources={
-    r"/api/*": {
-        "origins": ["http://localhost:3000"],  # Replace with your frontend URL
-        "methods": ["GET", "POST", "PUT", "DELETE"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "Access-Control-Allow-Credentials": True
-    }
-})
-
+# CORS(app, supports_credentials=True, resources={
+#     r"/api/*": {
+#         "origins": ["http://localhost:3000"],  # Replace with your frontend URL
+#         "methods": ["GET", "POST", "PUT", "DELETE"],
+#         "allow_headers": ["Content-Type", "Authorization"],
+#         "Access-Control-Allow-Credentials": True,
+#         'Access-Control-Allow-Origin': '*'
+#     }
+# })
+CORS(app, supports_credentials=True)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
