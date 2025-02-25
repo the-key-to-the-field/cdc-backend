@@ -1,8 +1,15 @@
 from datetime import datetime
 
 class Category:
+    # Class-level set to store unique category names
+    _names = set()
+
     def __init__(self, name, image, imageKey):
+        if name in Category._names:
+            raise ValueError(f"Category name '{name}' already exists.")
         self.name = name
+        Category._names.add(name)
+        
         self.image = image
         self.imageKey = imageKey
         self.created_at = datetime.utcnow()

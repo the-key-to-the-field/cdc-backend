@@ -136,6 +136,20 @@ def get_products_by_category(category_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500 
     
+    # Get all products by category name
+@products_bp.route('/products/category/<category_name>/name', methods=['GET'])
+def get_products_by_category_name(category_name):
+        name = category_name.lower()
+        products = list(products_collection.find())
+        for product in products:
+            product["_id"] = str(product["_id"])
+            category = categories_collection.find_one({"_id": product["categoryId"]}) if "categoryId" in product else None
+            product["categoryId"] = str(product["categoryId"])
+            product["categoryName"] = category["name"].lower() if category else ""  
+        products = [product for product in products if product["categoryName"] == name]
+        
+        return jsonify(products), 200
+
 @products_bp.route('/products/ids', methods=['GET'])
 def get_all_products_ids():
     products = products_collection.find({}, {'_id': 1})

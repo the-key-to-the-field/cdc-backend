@@ -63,6 +63,7 @@ def get_category(id):
         'imageKey': category['imageKey'] if 'imageKey' in category else None,
     })
 
+
 @categories_bp.route('/categories/filter', methods=['POST'])
 def filter_categories():
     data = request.get_json()
