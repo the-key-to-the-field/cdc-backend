@@ -35,6 +35,11 @@ def create_blog():
     created_blog = blogs_collection.find_one({"_id": result.inserted_id})
     return jsonify(blog_schema.dump(created_blog)), 201
 
+@blogs_bp.route("/blogs/all", methods=["GET"])
+def get_all_blogs():
+    blogs = blogs_collection.find().sort("created_at", -1)
+    return jsonify(blogs_schema.dump(blogs)), 200
+
 @blogs_bp.route("/blogs", methods=["GET"])
 def get_blogs():
     status = request.args.get('status', 'published')
@@ -66,6 +71,14 @@ def get_blog(blog_id):
         return jsonify(blog_schema.dump(blog)), 200
     except Exception as e:
         return jsonify({"message": "Invalid blog ID"}), 400
+    
+@blogs_bp.route("/blogs/<blog_name>", methods=["GET"])
+def get_blog_by_name(blog_name):
+    blog = blogs_collection.find_one({"title": blog_name})
+    if not blog:
+        return jsonify({"message": "Blog not found"}), 404
+    return jsonify(blog_schema.dump(blog)), 200 
+
 
 @blogs_bp.route("/blogs/<blog_id>", methods=["PUT"])
 @jwt_required()
