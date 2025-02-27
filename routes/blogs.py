@@ -24,6 +24,7 @@ def create_blog():
     blog = {
         "title": data['title'],
         "image": data['image'],
+        "imageKey": data['imageKey'],
         "content": data['content'],
         "author": current_user,
         "created_at": datetime.utcnow(),
@@ -66,15 +67,17 @@ def get_blogs():
 def get_blog(blog_id):
     try:
         blog = blogs_collection.find_one({"_id": ObjectId(blog_id)})
+        
         if not blog:
             return jsonify({"message": "Blog not found"}), 404
         return jsonify(blog_schema.dump(blog)), 200
     except Exception as e:
         return jsonify({"message": "Invalid blog ID"}), 400
     
-@blogs_bp.route("/blogs/<blog_name>", methods=["GET"])
+@blogs_bp.route("/blogs/<blog_name>/name", methods=["GET"])
 def get_blog_by_name(blog_name):
-    blog = blogs_collection.find_one({"title": blog_name})
+    name = blog_name.replace("-", " ")
+    blog = blogs_collection.find_one({"title": name})
     if not blog:
         return jsonify({"message": "Blog not found"}), 404
     return jsonify(blog_schema.dump(blog)), 200 
