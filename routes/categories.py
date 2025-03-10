@@ -95,8 +95,15 @@ def filter_categories():
         'total': total
     }) 
 
-@categories_bp.route('/categories/ids', methods=['GET'])
-def get_all_categories_ids():
-    categories = categories_collection.find({}, {'_id': 1})
-    category_ids = [str(category['_id']) for category in categories]
-    return jsonify(category_ids)
+@categories_bp.route('/categories/<name>/name', methods=['GET'])
+def get_categorie_by_name(name):
+
+
+    category = categories_collection.find_one({'name': name.replace('_', ' ')})
+    if not category:
+        return jsonify({'message': 'Category not found'}), 404
+    return jsonify({
+        # 'id': str(category['_id']),
+        'name': category['name'],
+        'image': category['image'] if 'image' in category else None,
+    })

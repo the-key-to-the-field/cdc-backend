@@ -8,6 +8,7 @@ from routes.blogs import blogs_bp
 from routes.categories import categories_bp
 from db.mongo_client import get_db
 from waitress import serve
+from datetime import timedelta
 
 app = Flask(__name__)
 # CORS(app, supports_credentials=True, resources={
@@ -22,7 +23,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
 jwt = JWTManager(app)
 
 # Initialize the database connection

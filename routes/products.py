@@ -35,6 +35,8 @@ def get_products():
     products = list(products_collection.find())
     for product in products:
         product["_id"] = str(product["_id"])
+        # Ensure images is a list
+        product["images"] = product.get("images", [])
     return jsonify(products), 200
 
 @products_bp.route("/products/filter", methods=["POST"])
@@ -92,6 +94,7 @@ def get_product(product_id):
     product = products_collection.find_one({"_id": ObjectId(product_id)})
     if product:
         product["_id"] = str(product["_id"])
+        product["images"] = product.get("images", [])  # Ensure images is a list
         category = categories_collection.find_one({"_id": product["categoryId"]}) if "categoryId" in product else None
         product["categoryName"] = category["name"] if category else ""
         product["categoryId"] = str(product["categoryId"])
@@ -155,3 +158,61 @@ def get_all_products_ids():
     products = products_collection.find({}, {'_id': 1})
     product_ids = [str(product['_id']) for product in products]
     return jsonify(product_ids)
+
+
+@products_bp.route('/update-product-fields', methods=['POST'])
+def update_product_fields():
+    try:
+        # Get all products
+        products = products_collection.find()
+        
+        # Counter for updated records
+        updated_count = 0
+        
+        # Process each product
+        for product in products:
+            update_data = {}
+            
+            # Check and update image field
+            if 'image' in product and 'images' not in product:
+                update_data['images'] = [product['image']]
+                update_data['image'] = None  # To unset the old field
+            
+            # Check and update imageKey field
+            if 'imageKey' in product and 'imageKeys' not in product:
+                update_data['imageKeys'] = [product['imageKey']]
+                update_data['imageKey'] = None  # To unset the old field
+            
+            # If we have updates to make
+            if update_data:
+                # Use $set and $unset operators for MongoDB
+                update_query = {}
+                if 'images' in update_data or 'imageKeys' in update_data:
+                    update_query['$set'] = {
+                        k: v for k, v in update_data.items() 
+                        if k in ['images', 'imageKeys']
+                    }
+                if None in update_data.values():
+                    update_query['$unset'] = {
+                        k: "" for k, v in update_data.items() 
+                        if v is None
+                    }
+                
+                result = products_collection.update_one(
+                    {"_id": product["_id"]},
+                    update_query
+                )
+                if result.modified_count:
+                    updated_count += 1
+        
+        return jsonify({
+            'status': 'success',
+            'message': f'Updated {updated_count} products successfully',
+            'updated_count': updated_count
+        }), 200
+    
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Error updating products: {str(e)}'
+        }), 500
